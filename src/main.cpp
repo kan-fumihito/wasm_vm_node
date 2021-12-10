@@ -23,7 +23,7 @@ int main(int argc, char *argv_main[])
     uint8_t *buffer;
     char error_buf[128];
     int opt;
-    char *wasm_path = NULL;
+    char *wasm_path = NULL, *img_path = NULL;
 
     wasm_module_t module = NULL;
     wasm_module_inst_t module_inst = NULL;
@@ -35,6 +35,24 @@ int main(int argc, char *argv_main[])
 
     RuntimeInitArgs init_args;
     memset(&init_args, 0, sizeof(RuntimeInitArgs));
+
+    while ((opt = getopt(argc, argv_main, "f:r")) != -1)
+    {
+        switch (opt)
+        {
+        case 'f':
+            wasm_path = optarg;
+            break;
+        case 'r':
+            img_path = optarg;
+            break;
+        }
+    }
+    if (optind == 1)
+    {
+        printf("optind error.\n");
+        return 0;
+    }
 
     static NativeSymbol native_symbols[] =
         {
@@ -74,12 +92,6 @@ int main(int argc, char *argv_main[])
         return -1;
     }
 
-    if (argv_main[1] == nullptr)
-    {
-        printf("arg error\n");
-        return -1;
-    }
-    wasm_path = argv_main[1];
     buffer = (uint8_t *)bh_read_file_to_buffer(wasm_path, &buf_size);
 
     if (!buffer)
@@ -121,18 +133,27 @@ int main(int argc, char *argv_main[])
     }
     wasm_runtime_set_native_handler(checkpoint);
 
-    uint32_t argv[1];
-    // pass 4 elements for function arguments
-    if (!wasm_runtime_call_wasm(exec_env, func, 0, argv))
+    if (img_path == NULL)
     {
-        printf("call wasm function main failed. %s\n", wasm_runtime_get_exception(module_inst));
-        goto fail;
+        uint32_t argv[1];
+        // pass 4 elements for function arguments
+        if (!wasm_runtime_call_wasm(exec_env, func, 0, argv))
+        {
+            printf("call wasm function main failed. %s\n", wasm_runtime_get_exception(module_inst));
+            goto fail;
+        }
     }
-
-
-    int32_t ret_val;
-    memcpy(&ret_val, argv, sizeof(int32_t));
-    printf("Native finished calling wasm function main(), returned a int value: %d\n", ret_val);
+    else
+    {
+        restore(img_path);
+        uint32_t argv[1];
+        if (!wasm_runtime_restore_wasm(exec_env, func, 0, argv))
+        {
+            printf("restore wasm function main failed. %s\n",
+                   wasm_runtime_get_exception(module_inst));
+            goto fail;
+        }
+    }
 
 fail:
     if (exec_env)

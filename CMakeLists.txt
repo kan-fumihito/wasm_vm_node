@@ -92,7 +92,7 @@ find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
 # build out vmlib
 # set (WAMR_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR}/../..)
-set (WAMR_ROOT_DIR /opt/wasm-micro-runtime)
+set (WAMR_ROOT_DIR ./wasm-micro-runtime)
 include (${WAMR_ROOT_DIR}/build-scripts/runtime_lib.cmake)
 
 

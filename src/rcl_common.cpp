@@ -3,6 +3,7 @@
 #include <cstring>
 #include <string>
 #include <map>
+#include <filesystem>
 
 #include "wasm_export.h"
 #include "rcl_common.hpp"
@@ -15,6 +16,8 @@
 #include "rcl/publisher.h"
 #include "rcl/rcl.h"
 #include "rosidl_typesupport_cpp/message_type_support.hpp"
+
+namespace fs = std::filesystem;
 
 static rcl_context_t context;
 static std::map<int, wasm_node_t *> node_pool;
@@ -73,12 +76,13 @@ void checkpoint(void)
     fclose(fp);
 }
 
-void restore(void)
+void restore(const char *dir)
 {
     int node_id, pub_id, size, type;
     char buf[64] = {}, node_name[64] = {}, namespace_[64] = {}, topic_name[64] = {};
     FILE *fp;
-    fp = fopen("native.img", "r");
+    fs::path p = fs::path(dir) / "native.img";
+    fp = fopen(p.c_str(), "r");
 
     init_context(nullptr);
     set_restore_publisher();

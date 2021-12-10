@@ -19,6 +19,11 @@ rm *.img -f
 
 trap 'save' 2
 
-out/wasm_vm_node rclwasm/nodes/$1/out/$1.wasm
+if [ "$2" = "" ];then
+    out/wasm_vm_node -f rclwasm/nodes/$1/out/$1.wasm
+else
+    out/wasm_vm_node -f rclwasm/nodes/$1/out/$1.wasm -r $2
+fi
+
 
 

@@ -1,3 +1,7 @@
 [submodule "rclwasm"]
 	path = rclwasm
 	url = git@github.com:kan-fumihito/rclwasm.git
+[submodule "wasm-micro-runtime"]
+	path = wasm-micro-runtime
+	url = git@github.com:kan-fumihito/wasm-micro-runtime.git
+	branch = migration

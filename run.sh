@@ -2,7 +2,6 @@
 
 save(){
     IMG_DIR=img/`arch`/`date +"%Y-%m-%d-%H-%M-%S"`
-    echo "make dir: $IMG_DIR"
     mkdir -p $IMG_DIR
 
     mv *.img $IMG_DIR/

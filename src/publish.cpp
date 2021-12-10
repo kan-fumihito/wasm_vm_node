@@ -39,7 +39,7 @@ int publish_std_msgs_msg_String(wasm_exec_env_t exec_env,
     ret = rcl_publish(publisher->publisher, &msg, nullptr);
     if (ret == RCL_RET_OK)
     {
-        std::cout << msg.data << std::endl;
+        // std::cout << msg.data << std::endl;
         return 0;
     }
     else

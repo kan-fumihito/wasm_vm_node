@@ -3,7 +3,6 @@
 #include <cstring>
 #include <string>
 #include <map>
-#include <filesystem>
 
 #include "wasm_export.h"
 #include "rcl_common.hpp"
@@ -16,8 +15,6 @@
 #include "rcl/publisher.h"
 #include "rcl/rcl.h"
 #include "rosidl_typesupport_cpp/message_type_support.hpp"
-
-namespace fs = std::filesystem;
 
 static rcl_context_t context;
 static std::map<int, wasm_node_t *> node_pool;
@@ -76,13 +73,33 @@ void checkpoint(void)
     fclose(fp);
 }
 
-void restore(const char *dir)
+void restore(const char *img_dir)
 {
     int node_id, pub_id, size, type;
     char buf[64] = {}, node_name[64] = {}, namespace_[64] = {}, topic_name[64] = {};
     FILE *fp;
-    fs::path p = fs::path(dir) / "native.img";
-    fp = fopen(p.c_str(), "r");
+    char *dir = new char[strlen(img_dir) + strlen("native.img") + 1];
+
+    dir = strcpy(dir, img_dir);
+
+    for (int i = 0;; i++)
+    {
+        if (dir[i] == '\0')
+        {
+            if (i == 0)
+            {
+                printf("img path error.\n");
+                exit(1);
+            }
+            if (dir[i - 1] != '/')
+                dir = strcat(dir, "/");
+
+            break;
+        }
+    }
+
+    dir = strcat(dir, "native.img");
+    fp = fopen(dir, "r");
 
     init_context(nullptr);
     set_restore_publisher();
@@ -91,7 +108,7 @@ void restore(const char *dir)
     while (!feof(fp))
     {
         fscanf(fp, "%s", buf);
-        if (strncmp("node_id:",buf,8))
+        if (strncmp("node_id:", buf, 8))
         {
             break;
         }
@@ -180,7 +197,7 @@ static wasm_node_t *restore_node(int node_id,
     static rcl_node_options_t node_ops = rcl_node_get_default_options();
 
     ret = rcl_node_init(&node, node_name, namespace_, &context, &node_ops);
-    
+
     if (ret != RCL_RET_OK)
     {
         std::cout << "init node status: " << ret << std::endl;

@@ -32,7 +32,7 @@ struct Publisher_t
 int init_context(wasm_exec_env_t exec_env);
 
 void checkpoint(void);
-void restore(const char *dir);
+void restore(const char *img_dir);
 
 wasm_node_t *get_node(int id);
 int create_node(wasm_exec_env_t exec_env,

@@ -23,7 +23,7 @@ int main(int argc, char *argv_main[])
     uint8_t *buffer;
     char error_buf[128];
     int opt;
-    char *wasm_path = NULL, *img_path = NULL;
+    char *wasm_path = NULL, *img_dir = NULL;
 
     wasm_module_t module = NULL;
     wasm_module_inst_t module_inst = NULL;
@@ -36,7 +36,7 @@ int main(int argc, char *argv_main[])
     RuntimeInitArgs init_args;
     memset(&init_args, 0, sizeof(RuntimeInitArgs));
 
-    while ((opt = getopt(argc, argv_main, "f:r")) != -1)
+    while ((opt = getopt(argc, argv_main, "f:r:")) != -1)
     {
         switch (opt)
         {
@@ -44,10 +44,11 @@ int main(int argc, char *argv_main[])
             wasm_path = optarg;
             break;
         case 'r':
-            img_path = optarg;
+            img_dir = optarg;
             break;
         }
     }
+
     if (optind == 1)
     {
         printf("optind error.\n");
@@ -131,9 +132,10 @@ int main(int argc, char *argv_main[])
         printf("The _start wasm function is not found.\n");
         goto fail;
     }
-    wasm_runtime_set_native_handler(checkpoint);
 
-    if (img_path == NULL)
+    wasm_runtime_set_cr_info(checkpoint,img_dir);
+
+    if (img_dir == NULL)
     {
         uint32_t argv[1];
         // pass 4 elements for function arguments
@@ -145,7 +147,7 @@ int main(int argc, char *argv_main[])
     }
     else
     {
-        restore(img_path);
+        restore(img_dir);
         uint32_t argv[1];
         if (!wasm_runtime_restore_wasm(exec_env, func, 0, argv))
         {

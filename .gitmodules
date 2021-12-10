@@ -1,0 +1,3 @@
+[submodule "rclwasm"]
+	path = rclwasm
+	url = git@github.com:kan-fumihito/rclwasm.git

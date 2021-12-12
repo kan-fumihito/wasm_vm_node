@@ -19,7 +19,7 @@ int _sleep(wasm_exec_env_t exec_env, int milisec)
 
 int main(int argc, char *argv_main[])
 {
-    static char global_heap_buf[512 * 1024 * 8];
+    static char global_heap_buf[512 * 1024];
     uint8_t *buffer;
     char error_buf[128];
     int opt;

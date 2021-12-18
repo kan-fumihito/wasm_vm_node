@@ -69,7 +69,7 @@ set (WAMR_BUILD_INTERP 1)
 set (WAMR_BUILD_AOT 0)
 set (WAMR_BUILD_JIT 0)
 set (WAMR_BUILD_LIBC_BUILTIN 1)
-set (WAMR_BUILD_DUMP_CALL_STACK 1)
+set (WAMR_BUILD_DUMP_CALL_STACK 0)
 
 if (NOT MSVC)
   set (WAMR_BUILD_LIBC_WASI 1)
@@ -114,6 +114,17 @@ add_executable (wasm_vm_node
   src/publish.cpp  
 ${UNCOMMON_SHARED_SOURCE})
 
+if (APPLE)
+  target_link_libraries (wasm_vm_node -lvmlib -lm -ldl -lpthread)
+else ()
+  target_link_libraries (wasm_vm_node -lvmlib -lm -ldl -lpthread -lrt)
+endif ()
+
+install(TARGETS
+  wasm_vm_node
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 # specific order: dependents before dependencies
 ament_target_dependencies(${PROJECT_NAME}
@@ -132,9 +143,3 @@ ament_target_dependencies(${PROJECT_NAME}
 )
 
 ament_package()
-
-if (APPLE)
-  target_link_libraries (wasm_vm_node vmlib -lm -ldl -lpthread)
-else ()
-  target_link_libraries (wasm_vm_node vmlib -lm -ldl -lpthread -lrt)
-endif ()
